@@ -1,0 +1,138 @@
+$DEFAULT_ROW_HEIGHT: 27px;
+
+.gumul {
+  background-color: rgba(200, 200, 200, 0.1);
+  background-image: url("data:image/svg+xml,%3Csvg width='10' height='10' xmlns='http://www.w3.org/2000/svg'%3E%3Cg%3E%3Crect fill='none' height='12' width='12' y='-1' x='-1'/%3E%3Cg display='none' overflow='visible' y='0' x='0' height='100%25' width='100%25'%3E%3Crect stroke-width='0' y='0' x='0' height='100%25' width='100%25'/%3E%3C/g%3E%3C/g%3E%3Cg%3E%3Cline y2='0' x2='10' y1='10' x1='0' stroke='%23eee' fill='none'/%3E%3C/g%3E%3C/svg%3E");
+  min-height: $DEFAULT_ROW_HEIGHT * 2;
+  position: relative;
+
+  &-unmount > div {
+    visibility: hidden;
+  }
+
+  table {
+    background-color: #fff;
+    border-collapse: collapse;
+    table-layout: fixed;
+
+    th, td {
+      cursor: default;
+      border: 1px solid #ddd;
+    }
+  }
+
+  // .gumul-resize
+  &-resize {
+    cursor: ew-resize;
+    display: none;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    width: 10px;
+    z-index: 2;
+
+    &-on {
+      display: block;
+      margin-left: -8px;
+
+      &::after {
+        background-color: #369;
+        content: '';
+        display: block;
+        height: 100%;
+        opacity: 0.3;
+        margin: 0 auto;
+        width: 1px;
+      }
+    }
+  }
+
+  // .gumul-loading
+  &-loading {
+    &::after {
+      color: #aaa;
+      content: "loading...";
+    }
+
+    > div {
+      opacity: 0;
+    }
+  }
+
+  // .gumul-header
+  &-header {
+    padding: 5px 5px 0;
+    text-align: center;
+
+    // .gumul-header::after
+    &::after {
+      content: '';
+      display: block;
+      clear: both;
+    }
+
+    > div {
+      overflow: hidden;
+      float: left;
+      position: relative;
+    }
+
+    // .gumul-header-left
+    &-left {
+      margin-right: 1px;
+      min-height: 1px;
+      z-index: 2;
+    }
+
+    // .gumul-header-main
+    &-main {
+      z-index: 1;
+    }
+  }
+
+  // .gumul-body
+  &-body {
+    margin-top: 1px;
+    padding: 0 5px 5px;
+
+    // .gumul-body::after
+    &::after {
+      content: '';
+      display: block;
+      clear: both;
+    }
+
+    // .gumul-body-left
+    &-left {
+      margin-right: 1px;
+      overflow: hidden;
+      float: left;
+      z-index: 2;
+    }
+
+    // .gumul-body-main
+    &-main {
+      overflow: hidden;
+      float: left;
+      z-index: 1;
+    }
+  }
+
+
+  // .gumul-cell
+  &-cell {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    // .gumul-cell-prefixing
+    &-prefixing {
+      border: 0 !important;
+      height: $DEFAULT_ROW_HEIGHT;
+      padding: 0;
+      width: 0;
+    }
+  }
+}
+
