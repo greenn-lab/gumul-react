@@ -1,44 +1,25 @@
-This project was bootstrapped with [Create React Gumul](https://github.com/facebook/create-react-app).
+# gumul-react
+### 소개
+데이터테이블이에요.  
+리액트를 사용했고, 타입스크립트로 작성했어요. 
 
-## Available Scripts
+### 특징
+별다른 특징없이 해더가 고정되고 틀고정 기능이 있는 기본적인 데이터를 표현하는 테이블 이에요.
 
-In the project directory, you can run:
+#### 기능
+- [ ] 셀 선택
+- [ ] 셀 드래그해서 다중 선택
+- [ ] 선택된 셀 복사
+- [ ] 셀 수정
+- [ ] 수정된 셀 데이터에 의한 행 높이 변경
+- [ ] 입력된 데이터 검증 (validation)
 
-### `npm start`
+#### 디자인
+- [ ] "로딩중" 표현
+- [ ] 데이터 건수가 없을 때 안내 문구
+- [ ] 진행 중 오류사항에 대한 안내
+- [ ] Context Menu 추가
+- [ ] 달력
 
-Runs the app in the development mode.<br>
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
-
-The page will reload if you make edits.<br>
-You will also see any lint errors in the console.
-
-### `npm test`
-
-Launches the test runner in the interactive watch mode.<br>
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.<br>
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.<br>
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (Webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React Gumul documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+#### 플러그인
+- [ ] spreadsheet import/export
