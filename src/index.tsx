@@ -4,12 +4,15 @@ import ReactDOM from 'react-dom'
 import Gumul from './Gumul'
 import { CellShape } from './components/Cell'
 
+import 'core-js/es/map'
+import 'core-js/es/set'
 import 'react-app-polyfill/ie9'
+
 import './Gumul.scss'
 
 ReactDOM.render(
   <Gumul
-    data={'https://next.json-generator.com/api/json/get/N1Zkq45bw'}
+    data={'./sample-row-100.json'}
     height={310}
     freeze={2}
     columns={[
@@ -42,10 +45,11 @@ ReactDOM.render(
               },
               {
                 label: 'identity', childCells: [
-                  { id: 'skin' },
-                  { id: 'eye' },
-                  { id: 'height' },
-                  { id: 'weight' }
+                  { id: 'height', func: (v, r) => r.bio.height },
+                  { id: 'weight', func: (v, r) => r.bio.weight },
+                  { id: 'skin', func: (v, r) => r.bio.skin },
+                  { id: 'eyes', func: (v, r) => r.bio.eyes },
+                  { id: 'married', func: (v, r) => r.bio.marred }
                 ]
               }
             ]
