@@ -21,7 +21,20 @@ ReactDOM.render(
         id: 'username',
         childCells: [
           { label: 'id' },
-          { id: 'email' }
+          { id: 'email' },
+          {
+            id: 'name',
+            childCells: [
+              {
+                id: 'name.first',
+                func: (v, r) => r.name.first
+              },
+              {
+                id: 'name.last',
+                func: (v, r) => r.name.last
+              }
+            ]
+          }
         ]
       },
       {
@@ -30,26 +43,12 @@ ReactDOM.render(
           {
             label: 'body',
             childCells: [
-              {
-                id: 'name',
-                childCells: [
-                  {
-                    id: 'name.first',
-                    func: (v, r) => r.name.first
-                  },
-                  {
-                    id: 'name.last',
-                    func: (v, r) => r.name.last
-                  }
-                ]
-              },
+              { id: 'height', func: (v, r) => r.bio.height },
+              { id: 'weight', func: (v, r) => r.bio.weight },
               {
                 label: 'identity', childCells: [
-                  { id: 'height', func: (v, r) => r.bio.height },
-                  { id: 'weight', func: (v, r) => r.bio.weight },
                   { id: 'skin', func: (v, r) => r.bio.skin },
-                  { id: 'eyes', func: (v, r) => r.bio.eyes },
-                  { id: 'married', func: (v, r) => r.bio.marred }
+                  { id: 'eyes', func: (v, r) => r.bio.eyes }
                 ]
               }
             ]

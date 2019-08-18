@@ -3,21 +3,39 @@ $DEFAULT_ROW_HEIGHT: 27px;
 .gumul {
   background-color: rgba(200, 200, 200, 0.1);
   background-image: url("data:image/svg+xml,%3Csvg width='10' height='10' xmlns='http://www.w3.org/2000/svg'%3E%3Cg%3E%3Crect fill='none' height='12' width='12' y='-1' x='-1'/%3E%3Cg display='none' overflow='visible' y='0' x='0' height='100%25' width='100%25'%3E%3Crect stroke-width='0' y='0' x='0' height='100%25' width='100%25'/%3E%3C/g%3E%3C/g%3E%3Cg%3E%3Cline y2='0' x2='10' y1='10' x1='0' stroke='%23eee' fill='none'/%3E%3C/g%3E%3C/svg%3E");
-  min-height: $DEFAULT_ROW_HEIGHT * 2;
-  position: relative;
+  padding: 5px;
 
-  &-unmount > div {
-    visibility: hidden;
-  }
+  &-container { // .gumul-container
+    min-height: $DEFAULT_ROW_HEIGHT * 2;
+    overflow: hidden;
+    position: relative;
 
-  table {
-    background-color: #fff;
-    border-collapse: collapse;
-    table-layout: fixed;
+    > table {
+      position: absolute;
+      background-color: #fff;
+      border-collapse: collapse;
+      table-layout: fixed;
 
-    th, td {
-      cursor: default;
-      border: 1px solid #ddd;
+      &.gumul-knob {
+        z-index: 4
+      }
+
+      &.gumul-head {
+        z-index: 3
+      }
+
+      &.gumul-left {
+        z-index: 2
+      }
+
+      &.gumul-main {
+        z-index: 1
+      }
+
+      th, td {
+        cursor: default;
+        border: 1px solid #ddd;
+      }
     }
   }
 

@@ -1,5 +1,5 @@
 import React, { Component, MouseEvent } from 'react'
-import { ICell } from '../Cell'
+import { ICell } from './Cell'
 
 export interface IHeaderCell extends ICell {
   _id?: number
@@ -16,12 +16,17 @@ export default class HeaderCell extends Component<IHeaderCell> {
 
   render() {
     const { label, index, rowSpan, colSpan, onChangeCellWidth } = this.props
+
+    const attrs: any = {
+      'data-index': index
+    }
+
+    if (rowSpan > 1) attrs['rowSpan'] = rowSpan
+    if (colSpan > 1) attrs['colSpan'] = colSpan
+
     return (
-      <td
-        rowSpan={rowSpan}
-        colSpan={colSpan}
-        data-index={index}
-        onMouseMove={onChangeCellWidth.show}
+      <td {...attrs}
+        // onMouseMove={onChangeCellWidth.show}
       >
         <span className={this.makeClassList()}>
           {label}
