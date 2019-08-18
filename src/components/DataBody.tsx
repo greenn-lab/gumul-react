@@ -1,5 +1,5 @@
 import React from 'react'
-import Cell, { ICell } from './Cell'
+import { ICell } from './Cell'
 
 interface Props {
   matrix: ICell[][]

@@ -32,9 +32,14 @@ $DEFAULT_ROW_HEIGHT: 27px;
         z-index: 1
       }
 
-      th, td {
+      td {
         cursor: default;
         border: 1px solid #ddd;
+      }
+
+      thead td {
+        font-weight: bold;
+        text-align: center;
       }
     }
   }
@@ -64,6 +69,21 @@ $DEFAULT_ROW_HEIGHT: 27px;
       }
     }
   }
+
+  // .gumul-axis-x, .gumul-axis-x
+  &-axis-x,
+  &-axis-y {
+    bottom: 0;
+    overflow: auto;
+    position: absolute;
+    right: 0;
+
+    > div {
+      height: 1px;
+      width: 1px;
+    }
+  }
+
 
   // .gumul-loading
   &-loading {

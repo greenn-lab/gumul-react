@@ -1,10 +1,10 @@
 import React, { Component } from 'react'
 import axios from 'axios'
 
-import { ICell } from './components/Cell'
-import { IHeaderCell } from './components/HeaderCell'
+import { ICell, IHeaderCell } from './components/Cell'
 import Header from './components/Header'
 import DataBody from './components/DataBody'
+import utils from './utils'
 
 interface Props {
   data?: string | any[]
@@ -38,18 +38,19 @@ export default class Gumul extends Component<Props, State> {
   }
 
   private shape: {
-    width: {
-      container?: number
-      columns?: number[]
+    container?: number
+    columns?: number[]
+    height?: number,
+    body: {
+      top?: number,
+      width?: number,
+      height?: number
     }
-    height?: number
-    altitude?: number
     freeze?: number
     rows?: number
   } = {
-    width: {
-      columns: []
-    },
+    columns: [],
+    body: {},
     freeze: 0
   }
 
@@ -65,7 +66,7 @@ export default class Gumul extends Component<Props, State> {
     root?: HTMLDivElement
     container?: HTMLDivElement
     resize?: HTMLDivElement
-    scroll: {
+    axis: {
       x?: HTMLDivElement,
       y?: HTMLDivElement
     }
@@ -76,15 +77,15 @@ export default class Gumul extends Component<Props, State> {
       main?: HTMLTableElement
     }
   } = {
-    scroll: {},
+    axis: {},
     table: {}
   }
 
   constructor(props: Props) {
     super(props)
 
-    if (typeof props.data === 'string')
-      this.loading(props.data)
+    if (typeof props.data === 'string') this.loading(props.data)
+    else this.data = props.data
 
     this.shape.freeze = props.freeze || 0
     this.shape.height = props.height || Gumul.DEFAULT_ROW_HEIGHT * 5
@@ -133,10 +134,13 @@ export default class Gumul extends Component<Props, State> {
             />
           </table>
 
-          <div
-            className={'gumul-resize'}
-            ref={e => element.resize = e}
-          />
+          <div className={'gumul-resize'} ref={e => element.resize = e}/>
+          <div className={'gumul-axis-x'}>
+            <div ref={e => element.axis.x = e}/>
+          </div>
+          <div className={'gumul-axis-y'}>
+            <div ref={e => element.axis.y = e}/>
+          </div>
         </div>
       </div>
     )
@@ -182,10 +186,10 @@ export default class Gumul extends Component<Props, State> {
       matrix.left =
         matrix.main.map(y => y.splice(0, shape.freeze))
 
-      Gumul.calculateRowAndColSpan(matrix.left)
+      utils.calculateRowAndColSpan(matrix.left)
     }
 
-    Gumul.calculateRowAndColSpan(matrix.main)
+    utils.calculateRowAndColSpan(matrix.main)
   }
 
   private spreadColumnsToMatrix(cell: IHeaderCell, x: number, y: number): number {
@@ -240,7 +244,7 @@ export default class Gumul extends Component<Props, State> {
   }
 
   private defineColumnWidth(lastRow: IHeaderCell[]) {
-    const { columns } = this.shape.width
+    const { columns } = this.shape
 
     lastRow.forEach(x => {
       const width = x.width || x.label.length * Gumul.DEFAULT_CHARACTER_WIDTH
@@ -249,39 +253,40 @@ export default class Gumul extends Component<Props, State> {
     })
   }
 
-  private static calculateRowAndColSpan(matrix: IHeaderCell[][]): void {
-    if (matrix.length === 1) return
+  private resetSize(): void {
+    const { container, table, axis } = this.element
+    const { columns, height, freeze } = this.shape
 
-    const size = {
-      x: matrix[0].length,
-      y: matrix.length
-    }
+    const leftSideWidth: number = (freeze ?
+      columns.filter((v, i) => i < freeze)
+        .reduce((a, b) => a + b) : 0)
 
-    for (let y: number = 0; y < size.y; y++) {
-      for (let x: number = 0; x < size.x;) {
-        const current: IHeaderCell = matrix[y][x]
-        current.rowSpan = 1
-        current.colSpan = 1
+    this.shape.container = container.clientWidth
+    this.shape.body.top = this.matrix.main.length * Gumul.DEFAULT_ROW_HEIGHT
+    this.shape.body.width = this.shape.container - leftSideWidth
+    this.shape.body.height = height - this.shape.body.top
+    this.shape.rows = Math.ceil(this.shape.body.height / Gumul.DEFAULT_ROW_HEIGHT)
 
-        if (current.mocker) x++
-        else {
-          let seek: number = 0
-          while (++seek + y < size.y && matrix[seek + y][x]._id === current._id) {
-            matrix[seek + y][x].mocker = true
-            ++current.rowSpan
-          }
+    container.style.height = height + 'px'
 
-          while (++x < size.x && matrix[y][x]._id === current._id) {
-            matrix[y][x].mocker = true
-            ++current.colSpan
-          }
-        }
-      }
-    }
+    table.knob.style.width =
+      table.left.style.width = leftSideWidth + 'px'
+
+    table.head.style.left = leftSideWidth + 'px'
+    table.main.style.left = leftSideWidth + 'px'
+
+    table.head.style.width =
+      table.main.style.width = (columns.filter((v, i) => i >= freeze)
+        .reduce((a, b) => a + b)) + 'px'
+
+    table.left.style.top =
+      table.main.style.top = this.shape.body.top + 'px'
+
+    axis.x.parentElement.style.width = (this.shape.container - leftSideWidth) + 'px'
+    axis.y.parentElement.style.height = this.shape.body.height + 'px'
   }
 
-
-  loading = (url: string, append?: boolean) => {
+  private loading(url: string, append?: boolean): void {
     axios.get(url)
       .then(({ data }) => {
         if (append)
@@ -291,40 +296,6 @@ export default class Gumul extends Component<Props, State> {
       })
   }
 
-  private resetSize(): void {
-    const { container, table } = this.element
-    const { width, height, altitude, freeze } = this.shape
-
-    width.container = container.clientWidth
-
-    container.style.height = height + 'px'
-
-    this.shape.altitude = height
-      - this.matrix.main.length * Gumul.DEFAULT_ROW_HEIGHT
-
-    this.shape.rows = Math.ceil(altitude
-      / Gumul.DEFAULT_ROW_HEIGHT)
-
-    console.log(table, width)
-
-    table.left.style.top =
-      table.main.style.top = altitude + 'px'
-
-    const leftSideWidth: number = (freeze ?
-        width.columns.filter((v, i) => i < freeze)
-          .reduce((a, b) => a + b) : 0)
-
-    table.knob.style.width =
-      table.left.style.width = leftSideWidth + 'px'
-
-    table.head.style.left = leftSideWidth + 'px'
-      table.main.style.left = leftSideWidth + 'px'
-
-    table.head.style.width =
-      table.main.style.width =
-        width.columns.filter((v, i) => i >= freeze)
-          .reduce((a, b) => a + b) + 'px'
-  }
 
   onChangeCellWidth = {
     // show: (e: MouseEvent<HTMLElement>): void => {
@@ -392,14 +363,14 @@ export default class Gumul extends Component<Props, State> {
 
       scroll.left += e.deltaX > 0 ? 1 : e.deltaX < 0 ? -1 : 0
 
-      const max = shape.width.columns.length - shape.freeze
+      const max = shape.columns.length - shape.freeze
 
       if (scroll.left > max) scroll.left = max
       else if (scroll.left < 0) scroll.left = 0
 
       element.table.head.style.marginLeft =
         element.table.main.style.marginLeft =
-          (shape.width.columns
+          (shape.columns
             .filter((v, i) => i >= shape.freeze)
             .reduce((a, b) => a + b) * -1) + 'px'
     }

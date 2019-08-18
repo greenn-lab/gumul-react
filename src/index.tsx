@@ -2,7 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 
 import Gumul from './Gumul'
-import { CellShape } from './components/Cell'
+import { CellType } from './components/Cell'
 
 import 'core-js/es/map'
 import 'core-js/es/set'
@@ -16,7 +16,7 @@ ReactDOM.render(
     height={310}
     freeze={2}
     columns={[
-      { id: 'index', shape: CellShape.NUMBER },
+      { id: 'index', type: CellType.NUMBER },
       {
         id: 'username',
         childCells: [

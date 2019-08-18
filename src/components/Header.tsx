@@ -1,5 +1,5 @@
 import React, { MouseEvent } from 'react'
-import HeaderCell, { IHeaderCell } from './HeaderCell'
+import { HeaderCell, IHeaderCell } from './Cell'
 
 interface HeaderProps {
   matrix: IHeaderCell[][]
