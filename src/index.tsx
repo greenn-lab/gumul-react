@@ -27,11 +27,11 @@ ReactDOM.render(
             childCells: [
               {
                 id: 'name.first',
-                func: (v, r) => r.name.first
+                func: ({ name }) => name.first
               },
               {
                 id: 'name.last',
-                func: (v, r) => r.name.last
+                func: ({ name }) => name.last
               }
             ]
           }
@@ -43,12 +43,12 @@ ReactDOM.render(
           {
             label: 'body',
             childCells: [
-              { id: 'height', func: (v, r) => r.bio.height },
-              { id: 'weight', func: (v, r) => r.bio.weight },
+              { id: 'height', func: ({ bio }) => bio.height },
+              { id: 'weight', func: ({ bio }) => bio.weight },
               {
                 label: 'identity', childCells: [
-                  { id: 'skin', func: (v, r) => r.bio.skin },
-                  { id: 'eyes', func: (v, r) => r.bio.eyes }
+                  { id: 'skin', func: ({ bio }) => bio.skin },
+                  { id: 'eyes', func: ({ bio }) => bio.eyes }
                 ]
               }
             ]
@@ -62,7 +62,7 @@ ReactDOM.render(
               },
               {
                 id: 'hire',
-                func: v => new Date(v).getFullYear()
+                func: ({ hire }) => new Date(hire).getFullYear()
               }
             ]
           }

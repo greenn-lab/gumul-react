@@ -3,6 +3,7 @@ import { HeaderCell, IHeaderCell } from './Cell'
 
 interface HeaderProps {
   matrix: IHeaderCell[][]
+  freeze?: number
   onChangeCellWidth?: {
     show: (e: MouseEvent<HTMLElement>) => void
   }
@@ -11,6 +12,7 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> =
   ({
      matrix,
+    freeze = 0,
      onChangeCellWidth
    }) => (
     <>
@@ -18,7 +20,7 @@ const Header: React.FC<HeaderProps> =
         <col style={{ width: 0 }}/>
         {
           matrix[matrix.length - 1].map((x, index) =>
-            <col key={index} style={{ width: x.width }}/>
+            <col key={index} data-index={index + freeze} style={{ width: x.width }}/>
           )
         }
       </colgroup>

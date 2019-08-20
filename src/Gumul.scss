@@ -32,9 +32,16 @@ $DEFAULT_ROW_HEIGHT: 27px;
         z-index: 1
       }
 
+      tr {
+        height: $DEFAULT_ROW_HEIGHT
+      }
+
       td {
-        cursor: default;
         border: 1px solid #ddd;
+        cursor: default;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
 
       thead td {
@@ -77,6 +84,7 @@ $DEFAULT_ROW_HEIGHT: 27px;
     overflow: auto;
     position: absolute;
     right: 0;
+    z-index: 5;
 
     > div {
       height: 1px;
@@ -157,20 +165,12 @@ $DEFAULT_ROW_HEIGHT: 27px;
   }
 
 
-  // .gumul-cell
-  &-cell {
-    display: block;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-
-    // .gumul-cell-prefixing
-    &-prefixing {
-      border: 0 !important;
-      height: $DEFAULT_ROW_HEIGHT;
-      padding: 0;
-      width: 0;
-    }
+  // .gumul-cell-prefixing
+  &-cell-prefixing {
+    border: 0 !important;
+    height: $DEFAULT_ROW_HEIGHT;
+    padding: 0;
+    width: 0;
   }
 }
 

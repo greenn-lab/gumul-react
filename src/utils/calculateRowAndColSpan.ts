@@ -1,6 +1,6 @@
 import { IHeaderCell } from '../components/Cell'
 
-export default function(matrix: IHeaderCell[][]): void {
+export default (matrix: IHeaderCell[][]): void => {
   if (matrix.length === 1) return
 
   const size = {

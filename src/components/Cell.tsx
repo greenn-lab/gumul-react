@@ -1,4 +1,4 @@
-import React, { Component, MouseEvent, ReactElement } from 'react'
+import React, { MouseEvent, ReactElement } from 'react'
 
 export interface ICell {
   id?: string
@@ -45,12 +45,9 @@ export const HeaderCell: React.FC<IHeaderCell> = (props) => {
 
   return (
     <td {...attrs}
+        className={classes(props)}
       // onMouseMove={onChangeCellWidth.show}
-    >
-        <span className={classes(props)}>
-          {label}
-        </span>
-    </td>
+    >{label}</td>
   )
 }
 
@@ -70,12 +67,9 @@ const classes = (props: ICell | IHeaderCell): string => {
 }
 
 export enum CellType {
-  STRING = 'string'
-  ,
-  NUMBER = 'number'
-  ,
-  FORMULA = 'fomula'
-  ,
+  STRING = 'string',
+  NUMBER = 'number',
+  FORMULA = 'fomula',
   DATE = 'date'
 }
 
