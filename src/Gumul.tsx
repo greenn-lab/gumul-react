@@ -3,8 +3,16 @@ import axios from 'axios'
 
 import { ICell, IHeaderCell } from './components/Cell'
 import Header from './components/Header'
-import utils from './utils'
 import DataRow from './components/DataRow'
+
+import events from './events'
+import {
+  calculateScrollbarSize,
+  calculateXAxis,
+  compositeMatrix,
+  createRowElement,
+  extractRowTemplate
+} from './lib'
 
 interface Props {
   data?: string | any[]
@@ -25,70 +33,59 @@ export default class Gumul extends Component<Props, State> {
   public static DEFAULT_CHARACTER_WIDTH: number = 12
   public static DEFAULT_ROW_HEIGHT = 27
   public static SCROLL_X_SIZE: number = 100
-
-  private data: any[]
+  public static SCROLL_Y_SIZE: number = 50//Gumul.DEFAULT_ROW_HEIGHT
 
   private matrix: {
     id: number
     main: IHeaderCell[][],
-    left: IHeaderCell[][]
+    left?: IHeaderCell[][]
   } = {
     id: 0,
-    main: [],
-    left: null
-  }
-
-  private shape: {
-    container?: number
-    columns?: number[]
-    height?: number,
-    body: {
-      top?: number,
-      width?: number,
-      height?: number
-    }
-    freeze?: number
-    rows?: number
-  } = {
-    columns: [],
-    body: {},
-    freeze: 0
-  }
-
-  private scroll: {
-    left: number
-    top: number
-  } = {
-    left: 0,
-    top: 0
+    main: []
   }
 
   private element: {
     root?: HTMLDivElement
     container?: HTMLDivElement
     resize?: HTMLDivElement
-    axis: {
-      x?: HTMLDivElement,
-      y?: HTMLDivElement
-    }
     table: {
       knob?: HTMLTableElement
       head?: HTMLTableElement
       left?: HTMLTableElement
       main?: HTMLTableElement
     }
+    axis: {
+      x?: HTMLDivElement
+      y?: HTMLDivElement
+    }
     template: {
       left?: HTMLTableRowElement
       main?: HTMLTableRowElement
-      columns?: HTMLTableCellElement[]
     }
   } = {
-    axis: {},
     table: {},
-    template: {
-      columns: []
-    }
+    axis: {},
+    template: {}
   }
+
+  private shape: {
+    columns: number[]
+    width?: number
+    height?: number
+    body?: {
+      top?: number
+      width?: number
+      height?: number
+    }
+    freeze?: number
+    rows?: number
+  } = {
+    columns: []
+  }
+
+  private data: any[]
+
+  private scroll: number = 0
 
   constructor(props: Props) {
     super(props)
@@ -96,10 +93,12 @@ export default class Gumul extends Component<Props, State> {
     if (typeof props.data === 'string') this.loading(props.data)
     else this.data = props.data
 
-    this.shape.freeze = props.freeze || 0
-    this.shape.height = props.height || Gumul.DEFAULT_ROW_HEIGHT * 5
-
-    this.compositeMatrix()
+    compositeMatrix(
+      props.columns,
+      props.freeze,
+      this.shape.columns,
+      this.matrix
+    )
   }
 
   render() {
@@ -150,170 +149,104 @@ export default class Gumul extends Component<Props, State> {
   }
 
   componentDidMount(): void {
-    const { element } = this
+    const { template, resize, container, axis, table } = this.element
 
-    element.template.left = utils.extractRowTemplate(element.table.left)
-    element.template.main = utils.extractRowTemplate(element.table.main)
+    template.left = extractRowTemplate(table.left)
+    template.main = extractRowTemplate(table.main)
 
-    element.container.addEventListener('mouseleave', () => {
-      element.resize.classList.remove('gumul-resize__on')
-      delete element.resize.dataset.index
-      delete element.resize.dataset.startX
-    })
-
-    element.axis.x.addEventListener('scroll', e => {
-      const scrollLeft: number = (e.currentTarget as Element).scrollLeft
-      const { element: { table }, shape: { columns, freeze } } = this
-
-      const scroll = Math.ceil(scrollLeft / Gumul.SCROLL_X_SIZE)
-      const scrollSize = scroll === 0 ? 0
-        : columns.slice(freeze, freeze + scroll).reduce((a, b) => a + b) * -1
-
-      table.head.style.marginLeft = scrollSize + 'px'
-      table.main.style.marginLeft = scrollSize + 'px'
-    })
-
-    element.container.addEventListener('wheel', e => {
-      e.preventDefault()
-      utils.event.wheel.x(e, element.axis.x)
-      // this.onWheelY(e)
-    })
-
-    // element.resize.addEventListener('mousedown', onChangeCellWidth.pick)
-    // element.resize.addEventListener('mouseup', onChangeCellWidth.drop)
-
-    //
-    // this.setState({
-    //   mounted: true
-    // })
-
-    window.addEventListener('resize', () => this.resetSize())
     this.resetSize()
+    window.addEventListener('resize', () => this.resetSize())
+
+    container.addEventListener('mouseleave', () => {
+      resize.classList.remove('gumul-resize__on')
+      delete resize.dataset.index
+      delete resize.dataset.startX
+    })
+
+    axis.x.addEventListener('scroll', (e: Event) =>
+      events.scroll.x(
+        e,
+        table.head,
+        table.main,
+        this.shape.columns,
+        this.shape.freeze
+      )
+    )
+
+    axis.y.addEventListener('scroll', (e: Event) => {
+      this.scroll = events.scroll.y(
+        e,
+        table.left,
+        table.main,
+        this.data,
+        this.shape.rows,
+        this.scroll,
+        this.renderRow.bind(this))
+    })
+
+    container.addEventListener('wheel', (e: WheelEvent) => {
+      e.preventDefault()
+      events.wheel.x(e, axis.x)
+      events.wheel.y(e, axis.y)
+    })
+
+    // resize.addEventListener('mousedown', onChangeCellWidth.pick)
+    // resize.addEventListener('mouseup', onChangeCellWidth.drop)
 
     this.dataInitialRender()
   }
 
   private dataInitialRender = (): void => {
-    if (this.data === undefined) {
-      console.debug('wait for data loaded.')
-      setTimeout(this.dataInitialRender, 100)
-    } else if (this.data.length === 0) {
-      console.log('data was empty.')
-    } else {
-      this.data.filter((v, index) => index <= this.shape.rows)
-        .forEach(v => this.dataRender(v))
-    }
-  }
-
-  private dataRender(data: any): void {
-    const { matrix } = this
-    const { freeze } = this.shape
-    const { template, table } = this.element
-
-    if (freeze)
-      this.rowRender(data, table.left, template.left, matrix.left)
-
-    this.rowRender(data, table.main, template.main, matrix.main)
-  }
-
-  private rowRender(data: any, table: HTMLTableElement, template: HTMLTableRowElement, matrix: IHeaderCell[][]): void {
-    const tr: Element = template.cloneNode(true) as Element
-    const columns: NodeListOf<HTMLTableCellElement> =
-      tr.querySelectorAll('td:not(.gumul-cell-prefix)')
-
-    matrix[matrix.length - 1].forEach((cell, index) => {
-      columns.item(index).innerHTML
-        = cell.func
-        ? cell.func(data, this.data)
-        : data[cell.id]
-    })
-
-    table.querySelector('tbody').appendChild(tr)
-  }
-
-  private compositeMatrix(): void {
-    const { props, shape, matrix } = this
-
-    let x: number = 0
-    props.columns.forEach(cell =>
-      x = this.spreadColumnsToMatrix(cell, x, 0))
-
-    this.fillMatrix()
-
-    if (shape.freeze) {
-      matrix.left =
-        matrix.main.map(y => y.splice(0, shape.freeze))
-
-      utils.calculateRowAndColSpan(matrix.left)
-    }
-
-    utils.calculateRowAndColSpan(matrix.main)
-  }
-
-  private spreadColumnsToMatrix(cell: IHeaderCell, x: number, y: number): number {
-    const { matrix } = this
-
-    if (!matrix.main[y])
-      matrix.main[y] = []
-
-    if (!cell.label)
-      cell.label = cell.id
-
-    matrix.main[y][x] = {
-      ...cell,
-      _id: matrix.id++
-    }
-
-    if (!cell.childCells || !cell.childCells.length) x++
+    if (this.data === undefined) setTimeout(this.dataInitialRender, 100)
+    else if (this.data.length === 0) console.log('data was empty.')
     else {
-      y++
+      const { element: { axis }, shape: { rows, body: { height } }, data } = this
 
-      cell.childCells.forEach(_cell =>
-        x = this.spreadColumnsToMatrix(_cell, x++, y))
+      axis.y.querySelector('div').style.height = (
+        data.length < rows
+          ? 0
+          : height + (data.length - rows + 3) * Gumul.SCROLL_Y_SIZE
+      ) + 'px'
+
+      data.filter((v, index) => index < rows).forEach(v => this.renderRow(v))
     }
-
-    return x
   }
 
-  private fillMatrix(): void {
-    const { matrix } = this
-    const size = {
-      y: matrix.main.length,
-      x: matrix.main.reduce((i, j) => i.length > j.length ? i : j).length
+  private renderRow(row: any, insertBefore?: boolean): void {
+    const {
+      data,
+      matrix,
+      element: { table, template }
+    } = this
+
+    const tbody = [table.left.querySelector('tbody'),
+      table.main.querySelector('tbody')]
+
+    if (tbody[0]) {
+      if (insertBefore)
+        tbody[0].insertBefore(
+          createRowElement(data, row, template.left, matrix.left),
+          tbody[0].querySelector('tr'))
+      else
+        tbody[0].appendChild(
+          createRowElement(data, row, template.left, matrix.left))
     }
 
-    for (let y: number = 0; y < size.y; y++) {
-      for (let x: number = 0; x < size.x;) {
-        let current: IHeaderCell = matrix.main[y][x]
-
-        if (!current) x++
-        else {
-          let seek: number = y
-          while (++seek < size.y && !matrix.main[seek][x])
-            matrix.main[seek++][x] = { ...current }
-
-          while (++x < size.x && !matrix.main[y][x])
-            matrix.main[y][x] = { ...current }
-        }
-      }
-    }
-
-    this.defineColumnWidth(matrix.main[size.y - 1])
-  }
-
-  private defineColumnWidth(lastRow: IHeaderCell[]) {
-    const { columns } = this.shape
-
-    lastRow.forEach(x => {
-      const width = x.width || x.label.length * Gumul.DEFAULT_CHARACTER_WIDTH
-      x.width = width
-      columns.push(width)
-    })
+    if (insertBefore)
+      tbody[1].insertBefore(
+        createRowElement(data, row, template.main, matrix.main),
+        tbody[1].querySelector('tr'))
+    else
+      tbody[1].appendChild(
+        createRowElement(data, row, template.main, matrix.main))
   }
 
   private resetSize(): void {
-    const { container, table, axis } = this.element
-    const { columns, height, body, freeze } = this.shape
+    const { props, matrix, element: { container, table, axis } } = this
+    const { columns } = this.shape
+    const freeze = props.freeze || 0
+    const height = props.height || Gumul.DEFAULT_ROW_HEIGHT * 5
+    const bodyTop = matrix.main.length * Gumul.DEFAULT_ROW_HEIGHT
 
     const leftTableWidth: number = (freeze ?
       columns.filter((v, i) => i < freeze)
@@ -323,11 +256,19 @@ export default class Gumul extends Component<Props, State> {
       columns.filter((v, i) => i >= freeze)
         .reduce((a, b) => a + b) : 0)
 
-    this.shape.container = container.clientWidth
-    this.shape.body.top = this.matrix.main.length * Gumul.DEFAULT_ROW_HEIGHT
-    this.shape.body.width = this.shape.container - leftTableWidth
-    this.shape.body.height = height - body.top
-    this.shape.rows = Math.ceil(body.height / Gumul.DEFAULT_ROW_HEIGHT)
+    this.shape = {
+      width: container.clientWidth,
+      height,
+      freeze,
+      rows: Math.ceil((height - bodyTop) / Gumul.DEFAULT_ROW_HEIGHT),
+      body: {
+        top: matrix.main.length * Gumul.DEFAULT_ROW_HEIGHT,
+        width: container.clientWidth - leftTableWidth,
+        height: height - bodyTop
+      },
+      columns
+    }
+
 
     container.style.height = height + 'px'
 
@@ -342,14 +283,18 @@ export default class Gumul extends Component<Props, State> {
         .reduce((a, b) => a + b)) + 'px'
 
     table.left.style.top =
-      table.main.style.top = body.top + 'px'
+      table.main.style.top = bodyTop + 'px'
 
-    utils.calculateXAxis(rightTableWidth, axis.x, body.width, columns.slice(freeze))
-    axis.x.style.width = body.width + 'px'
-    axis.y.style.height = body.height + 'px'
+    calculateXAxis(rightTableWidth, axis.x, this.shape.body.width, columns.slice(freeze))
+    axis.x.style.width = this.shape.body.width - calculateScrollbarSize() + 'px'
+    axis.y.style.height = this.shape.body.height - calculateScrollbarSize() + 'px'
+    axis.x.style.marginRight =
+      axis.y.style.marginBottom = calculateScrollbarSize() + 'px'
 
-    table.left.querySelector('colgroup') && table.left.removeChild(table.left.querySelector('colgroup'))
-    table.main.querySelector('colgroup') && table.main.removeChild(table.main.querySelector('colgroup'))
+    const colgroup = [table.left.querySelector('colgroup'), table.main.querySelector('colgroup')]
+    colgroup[0] && table.left.removeChild(colgroup[0])
+    colgroup[1] && table.main.removeChild(colgroup[1])
+
     table.left.appendChild(table.knob.querySelector('colgroup').cloneNode(true))
     table.main.appendChild(table.head.querySelector('colgroup').cloneNode(true))
   }

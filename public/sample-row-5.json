@@ -1,0 +1,226 @@
+[
+  {
+    "_id": "5d314ac07af9856880bf7ef1",
+    "index": 0,
+    "guid": "3be60ee4-ad3f-45e5-b7b7-12023aa4bdf9",
+    "username": "3be60ee4",
+    "bio": {
+      "age": 31,
+      "eyes": "odd",
+      "skin": "yellow",
+      "weight": "106.91",
+      "height": 191,
+      "married": false
+    },
+    "name": {
+      "first": "Winters",
+      "last": "Maxwell"
+    },
+    "wage": 4198773,
+    "company": "OVERPLEX",
+    "email": "winters.maxwell@overplex.tv",
+    "phone": "(867) 446-3484",
+    "address": "963 Seigel Street, Delco, Delaware, 7435",
+    "about": "Excepteur occaecat deserunt id nulla sit labore eiusmod veniam. In veniam mollit non Lorem exercitation ad magna. Nostrud commodo consequat amet enim nostrud irure duis. Adipisicing tempor qui excepteur proident culpa culpa exercitation reprehenderit sint aliqua id occaecat ea reprehenderit.",
+    "hire": "Sun Mar 04 2018 02:19:09 GMT+0000",
+    "latitude": "-85.43149",
+    "longitude": "-26.728247",
+    "tags": [
+      "officia",
+      "commodo",
+      "fugiat",
+      "voluptate"
+    ],
+    "range": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ]
+  },
+  {
+    "_id": "5d314ac0618639fb26b2829b",
+    "index": 1,
+    "guid": "c46ec1f3-a3af-4203-8933-500aa7f05019",
+    "username": "c46ec1f3",
+    "bio": {
+      "age": 52,
+      "eyes": "odd",
+      "skin": "white",
+      "weight": "83.71",
+      "height": "154.1",
+      "married": false
+    },
+    "name": {
+      "first": "Eaton",
+      "last": "Key"
+    },
+    "wage": 4650092,
+    "company": "COMCUBINE",
+    "email": "eaton.key@comcubine.org",
+    "phone": "(985) 512-2545",
+    "address": "821 Flatlands Avenue, Gadsden, Texas, 8029",
+    "about": "Velit sit reprehenderit consequat consectetur. Minim non pariatur quis voluptate. Ea esse in Lorem esse sit ullamco. Id amet pariatur velit officia cupidatat et ad nisi laboris ullamco fugiat.",
+    "hire": "Fri Mar 31 2017 00:19:08 GMT+0000",
+    "latitude": "-10.63843",
+    "longitude": "-42.759161",
+    "tags": [
+      "minim"
+    ],
+    "range": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ]
+  },
+  {
+    "_id": "5d314ac197e15c432857a12f",
+    "index": 2,
+    "guid": "d6e1b93c-e810-4d7b-8d94-cf2b299f13df",
+    "username": "d6e1b93c",
+    "bio": {
+      "age": 56,
+      "eyes": "green",
+      "skin": "black",
+      "weight": "77.31",
+      "height": "204.5",
+      "married": false
+    },
+    "name": {
+      "first": "Colette",
+      "last": "Gaines"
+    },
+    "wage": 4019374,
+    "company": "QUADEEBO",
+    "email": "colette.gaines@quadeebo.io",
+    "phone": "(847) 524-3314",
+    "address": "526 Hale Avenue, Kennedyville, New Hampshire, 7102",
+    "about": "Id in cupidatat dolor est. Pariatur laboris deserunt irure magna sit sit Lorem qui ex id culpa. Eu nulla id in aute dolor aliqua et sunt proident consequat. Sit esse enim occaecat deserunt commodo amet qui veniam tempor non consectetur. Laborum mollit consectetur ut ipsum nulla est occaecat.",
+    "hire": "Sun May 13 2012 22:02:38 GMT+0000",
+    "latitude": "7.780471",
+    "longitude": "-63.233876",
+    "tags": [
+      "commodo",
+      "et",
+      "sint",
+      "ut"
+    ],
+    "range": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ]
+  },
+  {
+    "_id": "5d314ac15f78fa103cd9df59",
+    "index": 3,
+    "guid": "d24bf9f0-6299-438e-9d80-3417aaf45f7f",
+    "username": "d24bf9f0",
+    "bio": {
+      "age": 73,
+      "eyes": "odd",
+      "skin": "yellow",
+      "weight": "100.53",
+      "height": "191.2",
+      "married": true
+    },
+    "name": {
+      "first": "Juana",
+      "last": "Vang"
+    },
+    "wage": 3663949,
+    "company": "PODUNK",
+    "email": "juana.vang@podunk.biz",
+    "phone": "(831) 433-3547",
+    "address": "378 Oceanview Avenue, Holcombe, Arkansas, 9053",
+    "about": "Tempor commodo sunt velit culpa. Nisi eiusmod elit ex nisi sint non do. Consectetur anim aute voluptate consequat. Fugiat anim aute dolore deserunt in laborum occaecat. Mollit amet qui nulla deserunt laboris et esse aliqua laboris sit do magna fugiat.",
+    "hire": "Sun Jun 01 2014 07:51:45 GMT+0000",
+    "latitude": "72.338964",
+    "longitude": "21.228117",
+    "tags": [
+      "commodo",
+      "eiusmod",
+      "velit",
+      "laborum",
+      "incididunt"
+    ],
+    "range": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ]
+  },
+  {
+    "_id": "5d314ac196e7bd4b82878f22",
+    "index": 4,
+    "guid": "606c28be-b40c-4763-a69c-4ea202ca9fc1",
+    "username": "606c28be",
+    "bio": {
+      "age": 53,
+      "eyes": "odd",
+      "skin": "black",
+      "weight": "100.56",
+      "height": "207.9",
+      "married": true
+    },
+    "name": {
+      "first": "Mcdaniel",
+      "last": "Wilkinson"
+    },
+    "wage": 3815212,
+    "company": "COGNICODE",
+    "email": "mcdaniel.wilkinson@cognicode.net",
+    "phone": "(803) 478-3737",
+    "address": "399 Perry Terrace, Riegelwood, Alaska, 5451",
+    "about": "Cupidatat eu dolor dolor Lorem minim velit aliquip elit elit eiusmod reprehenderit. Sint ea cillum velit nostrud consequat do adipisicing est consectetur velit occaecat deserunt sunt. Nisi ut nulla cillum pariatur consectetur culpa laborum veniam. In incididunt ut pariatur consequat Lorem magna Lorem cupidatat sint culpa esse anim reprehenderit aute. Nisi ipsum excepteur nostrud velit dolore elit est officia excepteur laboris dolore fugiat.",
+    "hire": "Sat Jun 13 2015 13:01:20 GMT+0000",
+    "latitude": "-39.52508",
+    "longitude": "163.006678",
+    "tags": [
+      "irure",
+      "nostrud",
+      "anim",
+      "mollit",
+      "consequat"
+    ],
+    "range": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ]
+  }
+]
