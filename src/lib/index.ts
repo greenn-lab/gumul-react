@@ -21,8 +21,8 @@ export const extractRowTemplate = (table: HTMLTableElement): HTMLTableRowElement
   return result
 }
 
-export const calculateXAxis = (rightTableWidth: number, axis: HTMLDivElement, bodyWidth: number, columns: number[]): void => {
-  if (rightTableWidth <= bodyWidth) axis.querySelector('div').style.width = '0px'
+export const calculateXAxis = (mainTableWidth: number, axis: HTMLDivElement, bodyWidth: number, columns: number[]): void => {
+  if (mainTableWidth < bodyWidth - calculateScrollbarSize()) axis.querySelector('div').style.width = '0px'
   else {
     let visibleWidth: number = 0
     let visibleIndex: number = 0

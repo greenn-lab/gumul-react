@@ -17,7 +17,6 @@ function getSize(): number {
   const size: number = 100 - b.clientWidth
 
   document.body.removeChild(a)
-  console.log('check', size)
 
   return size
 }

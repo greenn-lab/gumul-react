@@ -3,9 +3,6 @@ import Gumul from '../Gumul'
 export default {
   x(e: Event, head: HTMLTableElement, main: HTMLTableElement, columns: number[], freeze: number): void {
     const scroll = Math.ceil((e.currentTarget as Element).scrollLeft / Gumul.SCROLL_X_SIZE)
-
-    console.log(scroll, freeze, columns)
-
     const scrollSize = scroll === 0 ? 0
       : columns.slice(freeze, freeze + scroll).reduce((a, b) => a + b) * -1
 
@@ -23,8 +20,6 @@ export default {
   ): number {
     const scroll: number = Math.ceil((e.currentTarget as Element).scrollTop / Gumul.SCROLL_Y_SIZE)
     const gap: number = scroll - _scroll
-
-    console.log(gap, scroll)
 
     if (gap === 1) {
       const tr = [left.querySelector('tr'), main.querySelector('tr')]

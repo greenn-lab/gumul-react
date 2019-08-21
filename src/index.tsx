@@ -12,7 +12,7 @@ import './Gumul.scss'
 
 ReactDOM.render(
   <Gumul
-    data={'./sample-row-100.json'}
+    data={'./sample-row-10.json'}
     height={310}
     freeze={2}
     columns={[

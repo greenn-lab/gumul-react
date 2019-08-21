@@ -1,19 +1,15 @@
-import React, { MouseEvent } from 'react'
+import React from 'react'
 import { HeaderCell, IHeaderCell } from './Cell'
 
 interface HeaderProps {
   matrix: IHeaderCell[][]
   freeze?: number
-  onChangeCellWidth?: {
-    show: (e: MouseEvent<HTMLElement>) => void
-  }
 }
 
 const Header: React.FC<HeaderProps> =
   ({
      matrix,
-    freeze = 0,
-     onChangeCellWidth
+     freeze = 0
    }) => (
     <>
       <colgroup>
@@ -35,7 +31,6 @@ const Header: React.FC<HeaderProps> =
                     {...cell}
                     key={col}
                     index={col + (cell.colSpan || 1) - 1}
-                    onChangeCellWidth={onChangeCellWidth}
                   />
                 )
               })

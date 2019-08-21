@@ -6,13 +6,7 @@ import Header from './components/Header'
 import DataRow from './components/DataRow'
 
 import events from './events'
-import {
-  calculateScrollbarSize,
-  calculateXAxis,
-  compositeMatrix,
-  createRowElement,
-  extractRowTemplate
-} from './lib'
+import { calculateXAxis, compositeMatrix, createRowElement, extractRowTemplate } from './lib'
 
 interface Props {
   data?: string | any[]
@@ -241,7 +235,7 @@ export default class Gumul extends Component<Props, State> {
         createRowElement(data, row, template.main, matrix.main))
   }
 
-  private resetSize(): void {
+  public resetSize(): void {
     const { props, matrix, element: { container, table, axis } } = this
     const { columns } = this.shape
     const freeze = props.freeze || 0
@@ -269,7 +263,6 @@ export default class Gumul extends Component<Props, State> {
       columns
     }
 
-
     container.style.height = height + 'px'
 
     table.knob.style.width =
@@ -285,11 +278,10 @@ export default class Gumul extends Component<Props, State> {
     table.left.style.top =
       table.main.style.top = bodyTop + 'px'
 
+    events.axis.mouseenter(axis.x, axis.y)
     calculateXAxis(rightTableWidth, axis.x, this.shape.body.width, columns.slice(freeze))
-    axis.x.style.width = this.shape.body.width - calculateScrollbarSize() + 'px'
-    axis.y.style.height = this.shape.body.height - calculateScrollbarSize() + 'px'
-    axis.x.style.marginRight =
-      axis.y.style.marginBottom = calculateScrollbarSize() + 'px'
+    axis.x.style.width = this.shape.body.width + 'px'
+    axis.y.style.height = this.shape.body.height + 'px'
 
     const colgroup = [table.left.querySelector('colgroup'), table.main.querySelector('colgroup')]
     colgroup[0] && table.left.removeChild(colgroup[0])

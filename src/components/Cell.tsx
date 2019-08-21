@@ -20,9 +20,6 @@ export interface IHeaderCell extends ICell {
   rowSpan?: number
   mocker?: boolean
   index?: number
-  onChangeCellWidth?: {
-    show: (e: MouseEvent<HTMLElement>) => void
-  }
 }
 
 export const Cell: React.FC<ICell> = (props) => (
@@ -35,7 +32,7 @@ export const Cell: React.FC<ICell> = (props) => (
 
 
 export const HeaderCell: React.FC<IHeaderCell> = (props) => {
-  const { label, index, rowSpan, colSpan, onChangeCellWidth } = props
+  const { label, index, rowSpan, colSpan } = props
   const attrs: any = {
     'data-index': index
   }
