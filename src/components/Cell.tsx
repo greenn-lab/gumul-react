@@ -1,4 +1,4 @@
-import React, { MouseEvent, ReactElement } from 'react'
+import React, { ReactElement } from 'react'
 
 export interface ICell {
   id?: string
@@ -19,7 +19,7 @@ export interface IHeaderCell extends ICell {
   colSpan?: number
   rowSpan?: number
   mocker?: boolean
-  index?: number
+  col?: number
 }
 
 export const Cell: React.FC<ICell> = (props) => (
@@ -32,9 +32,9 @@ export const Cell: React.FC<ICell> = (props) => (
 
 
 export const HeaderCell: React.FC<IHeaderCell> = (props) => {
-  const { label, index, rowSpan, colSpan } = props
-  const attrs: any = {
-    'data-index': index
+  const { label, col, rowSpan, colSpan } = props
+  const attrs: {[key: string]: number} = {
+    'col': col + (colSpan || 1) - 1
   }
 
   if (rowSpan > 1) attrs['rowSpan'] = rowSpan

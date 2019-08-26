@@ -22,10 +22,44 @@ interface State {
   rows?: any[]
 }
 
+export interface GumulElement {
+  root?: HTMLDivElement
+  container?: HTMLDivElement
+  sizer?: HTMLDivElement
+  table: {
+    knob?: HTMLTableElement
+    head?: HTMLTableElement
+    left?: HTMLTableElement
+    main?: HTMLTableElement
+  }
+  axis: {
+    x?: HTMLDivElement
+    y?: HTMLDivElement
+  }
+  template: {
+    left?: HTMLTableRowElement
+    main?: HTMLTableRowElement
+  }
+}
+
+export interface GumulShape {
+  columns: number[]
+  width?: number
+  height?: number
+  body?: {
+    top?: number
+    width?: number
+    height?: number
+  }
+  freeze?: number
+  rows?: number
+}
+
 export default class Gumul extends Component<Props, State> {
 
   public static DEFAULT_CHARACTER_WIDTH: number = 12
   public static DEFAULT_ROW_HEIGHT = 27
+  public static MINIMUM_COLUMN_WIDTH = 10
   public static SCROLL_X_SIZE: number = 100
   public static SCROLL_Y_SIZE: number = 50//Gumul.DEFAULT_ROW_HEIGHT
 
@@ -38,42 +72,13 @@ export default class Gumul extends Component<Props, State> {
     main: []
   }
 
-  private element: {
-    root?: HTMLDivElement
-    container?: HTMLDivElement
-    resize?: HTMLDivElement
-    table: {
-      knob?: HTMLTableElement
-      head?: HTMLTableElement
-      left?: HTMLTableElement
-      main?: HTMLTableElement
-    }
-    axis: {
-      x?: HTMLDivElement
-      y?: HTMLDivElement
-    }
-    template: {
-      left?: HTMLTableRowElement
-      main?: HTMLTableRowElement
-    }
-  } = {
+  public element: GumulElement = {
     table: {},
     axis: {},
     template: {}
   }
 
-  private shape: {
-    columns: number[]
-    width?: number
-    height?: number
-    body?: {
-      top?: number
-      width?: number
-      height?: number
-    }
-    freeze?: number
-    rows?: number
-  } = {
+  public shape: GumulShape = {
     columns: []
   }
 
@@ -96,13 +101,13 @@ export default class Gumul extends Component<Props, State> {
   }
 
   render() {
-    const { matrix, element, shape } = this
+    const { matrix, element, shape: { height }, props: { freeze } } = this
 
     return (
       <div className={'gumul'} ref={e => this.element.root = e}>
         <div
           className={'gumul-container'}
-          style={{ height: shape.height }}
+          style={{ height }}
           ref={e => element.container = e}
         >
           <table
@@ -115,7 +120,7 @@ export default class Gumul extends Component<Props, State> {
             className={'gumul-head'}
             ref={e => element.table.head = e}
           >
-            <Header matrix={matrix.main} freeze={shape.freeze}/>
+            <Header matrix={matrix.main} freeze={freeze}/>
           </table>
           <table
             className={'gumul-left'}
@@ -130,7 +135,7 @@ export default class Gumul extends Component<Props, State> {
             <DataRow matrix={matrix.main}/>
           </table>
 
-          <div className={'gumul-resize'} ref={e => element.resize = e}/>
+          <div className={'gumul-sizer'} ref={e => element.sizer = e}/>
           <div className={'gumul-axis-x'} ref={e => element.axis.x = e}>
             <div/>
           </div>
@@ -143,19 +148,13 @@ export default class Gumul extends Component<Props, State> {
   }
 
   componentDidMount(): void {
-    const { template, resize, container, axis, table } = this.element
+    const { template, sizer, container, axis, table } = this.element
 
     template.left = extractRowTemplate(table.left)
     template.main = extractRowTemplate(table.main)
 
-    this.resetSize()
-    window.addEventListener('resize', () => this.resetSize())
-
-    container.addEventListener('mouseleave', () => {
-      resize.classList.remove('gumul-resize__on')
-      delete resize.dataset.index
-      delete resize.dataset.startX
-    })
+    this.resize()
+    window.addEventListener('resize', () => this.resize())
 
     axis.x.addEventListener('scroll', (e: Event) =>
       events.scroll.x(
@@ -183,6 +182,8 @@ export default class Gumul extends Component<Props, State> {
       events.wheel.x(e, axis.x)
       events.wheel.y(e, axis.y)
     })
+
+    events.cell.resize(this)
 
     // resize.addEventListener('mousedown', onChangeCellWidth.pick)
     // resize.addEventListener('mouseup', onChangeCellWidth.drop)
@@ -235,7 +236,7 @@ export default class Gumul extends Component<Props, State> {
         createRowElement(data, row, template.main, matrix.main))
   }
 
-  public resetSize(): void {
+  public resize(): void {
     const { props, matrix, element: { container, table, axis } } = this
     const { columns } = this.shape
     const freeze = props.freeze || 0
@@ -283,6 +284,11 @@ export default class Gumul extends Component<Props, State> {
     axis.x.style.width = this.shape.body.width + 'px'
     axis.y.style.height = this.shape.body.height + 'px'
 
+    table.knob.querySelectorAll('col[data-index]').forEach(
+      (col: any) => col.style.width = columns[parseInt(col.dataset.index)] + 'px')
+    table.head.querySelectorAll('col[data-index]').forEach(
+      (col: any) => col.style.width = columns[parseInt(col.dataset.index)] + 'px')
+
     const colgroup = [table.left.querySelector('colgroup'), table.main.querySelector('colgroup')]
     colgroup[0] && table.left.removeChild(colgroup[0])
     colgroup[1] && table.main.removeChild(colgroup[1])
@@ -296,59 +302,5 @@ export default class Gumul extends Component<Props, State> {
       .then(({ data }) => {
         this.data = data
       })
-  }
-
-
-  onChangeCellWidth = {
-    // show: (e: MouseEvent<HTMLElement>): void => {
-    //   if (!this.resize.dataset.startX) {
-    //     const { left, width } = e.currentTarget.getBoundingClientRect()
-    //
-    //     if (e.clientX > left + width - 5) {
-    //       this.resize.classList.add('gumul-resize-on')
-    //       this.resize.style.left = (left + width - 5) + 'px'
-    //       this.resize.dataset.index = parseInt(e.currentTarget.dataset.index).toString()
-    //       this.resize.dataset.side = this.table.header.contains(e.currentTarget)
-    //         ? 'main'
-    //         : 'left'
-    //     } else {
-    //       this.resize.classList.remove('gumul-resize-on')
-    //       delete this.resize.dataset.index
-    //     }
-    //   }
-    // },
-    // move: (e: MouseEvent<HTMLElement>): void => {
-    //   const x = e.clientX - parseInt(this.resize.dataset.startX)
-    //   this.resize.style.left = (parseInt(this.resize.dataset.left) + x) + 'px'
-    // },
-    // pick: (e: HTMLElementEventMap['mousedown']): void => {
-    //   e.preventDefault()
-    //   this.resize.classList.add('gumul-resize-on')
-    //   this.resize.dataset.startX = e.clientX.toString()
-    //   this.resize.dataset.left = this.resize.style.left
-    // },
-    // drop: (e: HTMLElementEventMap['mouseup']) => {
-    //   const index: number = parseInt(this.resize.dataset.index)
-    //   const width: number = e.clientX - parseInt(this.resize.dataset.startX)
-    //   const matrix = this.resize.dataset.side === 'left'
-    //     ? this.matrixLeft
-    //     : this.matrixMain
-    //   const tables: HTMLElement[] = this.resize.dataset.side === 'left'
-    //     ? [this.table.headerLeft, this.table.bodyLeft]
-    //     : [this.table.header, this.table.body]
-    //
-    //   matrix.forEach(x => x[index].width += width)
-    //
-    //   tables.forEach(table => {
-    //     table.querySelectorAll('col')[index + 1].style.width =
-    //       parseInt(table.querySelectorAll('col')[index + 1].style.width) + width + 'px'
-    //   })
-    //
-    //   this.resetSize(this.props)
-    //
-    //   this.resize.classList.remove('gumul-resize-on')
-    //   delete this.resize.dataset.index
-    //   delete this.resize.dataset.startX
-    // }
   }
 }

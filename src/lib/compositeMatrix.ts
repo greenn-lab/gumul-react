@@ -33,8 +33,13 @@ export default (columns: ICell[], freeze: number, widths: number[], matrix: {
     }
   }
 
-  matrix.main[size.y - 1].forEach(x =>
-    widths.push(x.width || x.label.length * Gumul.DEFAULT_CHARACTER_WIDTH))
+  matrix.main[size.y - 1].forEach(x => {
+    const width: number = x.width
+      || x.label.length * Gumul.DEFAULT_CHARACTER_WIDTH
+
+    x.width = width
+    widths.push(width)
+  })
 
   if (freeze) {
     matrix.left = matrix.main.map(y => y.splice(0, freeze as number))

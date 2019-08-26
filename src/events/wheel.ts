@@ -2,11 +2,11 @@ import Gumul from '../Gumul'
 
 export default {
   x(e: WheelEvent, x: HTMLDivElement) {
-    if (x.dataset.wheelXThrottle) return
+    if (x.dataset.throttle) return
     else {
-      x.dataset.wheelXThrottle = 'ing'
+      x.dataset.throttle = 'ing'
       setTimeout(() =>
-          delete x.dataset.wheelXThrottle,
+          delete x.dataset.throttle,
         150 - Math.abs(e.deltaX * 30)
       )
 
@@ -14,11 +14,11 @@ export default {
     }
   },
   y(e: WheelEvent, y: HTMLDivElement): void {
-    if (y.dataset.wheelYThrottle) return
+    if (y.dataset.throttle) return
     else {
-      y.dataset.wheelYThrottle = 'ing'
+      y.dataset.throttle = 'ing'
       setTimeout(() =>
-          delete y.dataset.wheelYThrottle,
+          delete y.dataset.throttle,
         150 - Math.abs(e.deltaY * 30))
 
       y.scrollTop += (e.deltaY > 0 ? 1 : e.deltaY < 0 ? -1 : 0) * Gumul.SCROLL_Y_SIZE

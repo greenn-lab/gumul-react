@@ -38,7 +38,6 @@ $DEFAULT_ROW_HEIGHT: 27px;
 
       td {
         border: 1px solid #ddd;
-        cursor: default;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -51,28 +50,32 @@ $DEFAULT_ROW_HEIGHT: 27px;
     }
   }
 
-  // .gumul-resize
-  &-resize {
+  // .gumul-sizer
+  &-sizer {
     cursor: ew-resize;
-    display: none;
     height: 100%;
+    left: -100px;
     position: absolute;
     top: 0;
     width: 10px;
-    z-index: 2;
+    z-index: 7;
 
-    &-on {
-      display: block;
-      margin-left: -8px;
+    // .gumul-sizer__on>.gumul-sizer
+    &__on {
+      cursor: ew-resize;
+      user-select: none;
 
-      &::after {
-        background-color: #369;
-        content: '';
-        display: block;
-        height: 100%;
-        opacity: 0.3;
-        margin: 0 auto;
-        width: 1px;
+      > .gumul-sizer {
+        margin-left: -5px;
+
+        &::after {
+          background-color: #369;
+          content: '';
+          display: block;
+          height: 100%;
+          margin: 0 auto;
+          width: 1px;
+        }
       }
     }
   }

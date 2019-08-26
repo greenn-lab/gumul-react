@@ -30,7 +30,7 @@ const Header: React.FC<HeaderProps> =
                   <HeaderCell
                     {...cell}
                     key={col}
-                    index={col + (cell.colSpan || 1) - 1}
+                    col={col + freeze}
                   />
                 )
               })
