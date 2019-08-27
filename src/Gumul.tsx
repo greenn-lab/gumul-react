@@ -6,7 +6,7 @@ import Header from './components/Header'
 import DataRow from './components/DataRow'
 
 import events from './events'
-import { calculateXAxis, compositeMatrix, createRowElement, extractRowTemplate } from './lib'
+import { resizeScrollAxis, compositeMatrix, createRowElement, extractRowTemplate, resizeTableAndCell } from './lib'
 
 interface Props {
   data?: string | any[]
@@ -45,6 +45,7 @@ export interface GumulElement {
 export interface GumulShape {
   columns: number[]
   width?: number
+  leftWidth?: number
   height?: number
   body?: {
     top?: number
@@ -82,9 +83,7 @@ export default class Gumul extends Component<Props, State> {
     columns: []
   }
 
-  private data: any[]
-
-  private scroll: number = 0
+  public data: any[]
 
   constructor(props: Props) {
     super(props)
@@ -148,7 +147,7 @@ export default class Gumul extends Component<Props, State> {
   }
 
   componentDidMount(): void {
-    const { template, sizer, container, axis, table } = this.element
+    const { template, table } = this.element
 
     template.left = extractRowTemplate(table.left)
     template.main = extractRowTemplate(table.main)
@@ -156,37 +155,9 @@ export default class Gumul extends Component<Props, State> {
     this.resize()
     window.addEventListener('resize', () => this.resize())
 
-    axis.x.addEventListener('scroll', (e: Event) =>
-      events.scroll.x(
-        e,
-        table.head,
-        table.main,
-        this.shape.columns,
-        this.shape.freeze
-      )
-    )
-
-    axis.y.addEventListener('scroll', (e: Event) => {
-      this.scroll = events.scroll.y(
-        e,
-        table.left,
-        table.main,
-        this.data,
-        this.shape.rows,
-        this.scroll,
-        this.renderRow.bind(this))
-    })
-
-    container.addEventListener('wheel', (e: WheelEvent) => {
-      e.preventDefault()
-      events.wheel.x(e, axis.x)
-      events.wheel.y(e, axis.y)
-    })
-
+    events.scroll(this)
+    events.wheel(this)
     events.cell.resize(this)
-
-    // resize.addEventListener('mousedown', onChangeCellWidth.pick)
-    // resize.addEventListener('mouseup', onChangeCellWidth.drop)
 
     this.dataInitialRender()
   }
@@ -203,11 +174,12 @@ export default class Gumul extends Component<Props, State> {
           : height + (data.length - rows + 3) * Gumul.SCROLL_Y_SIZE
       ) + 'px'
 
-      data.filter((v, index) => index < rows).forEach(v => this.renderRow(v))
+      for (let i: number = 0; i < rows && i < data.length; i++)
+        this.renderRow(i)
     }
   }
 
-  private renderRow(row: any, insertBefore?: boolean): void {
+  public renderRow(index: number, insertBefore?: boolean): void {
     const {
       data,
       matrix,
@@ -220,35 +192,30 @@ export default class Gumul extends Component<Props, State> {
     if (tbody[0]) {
       if (insertBefore)
         tbody[0].insertBefore(
-          createRowElement(data, row, template.left, matrix.left),
+          createRowElement(data, data[index], template.left, matrix.left),
           tbody[0].querySelector('tr'))
       else
         tbody[0].appendChild(
-          createRowElement(data, row, template.left, matrix.left))
+          createRowElement(data, data[index], template.left, matrix.left))
     }
 
     if (insertBefore)
       tbody[1].insertBefore(
-        createRowElement(data, row, template.main, matrix.main),
+        createRowElement(data, data[index], template.main, matrix.main),
         tbody[1].querySelector('tr'))
     else
       tbody[1].appendChild(
-        createRowElement(data, row, template.main, matrix.main))
+        createRowElement(data, data[index], template.main, matrix.main))
   }
 
   public resize(): void {
-    const { props, matrix, element: { container, table, axis } } = this
+    const { props, matrix, element: { container } } = this
     const { columns } = this.shape
     const freeze = props.freeze || 0
     const height = props.height || Gumul.DEFAULT_ROW_HEIGHT * 5
     const bodyTop = matrix.main.length * Gumul.DEFAULT_ROW_HEIGHT
-
     const leftTableWidth: number = (freeze ?
       columns.filter((v, i) => i < freeze)
-        .reduce((a, b) => a + b) : 0)
-
-    const rightTableWidth: number = (freeze ?
-      columns.filter((v, i) => i >= freeze)
         .reduce((a, b) => a + b) : 0)
 
     this.shape = {
@@ -257,44 +224,18 @@ export default class Gumul extends Component<Props, State> {
       freeze,
       rows: Math.ceil((height - bodyTop) / Gumul.DEFAULT_ROW_HEIGHT),
       body: {
-        top: matrix.main.length * Gumul.DEFAULT_ROW_HEIGHT,
+        top: bodyTop,
         width: container.clientWidth - leftTableWidth,
         height: height - bodyTop
       },
+      leftWidth: leftTableWidth,
       columns
     }
 
     container.style.height = height + 'px'
 
-    table.knob.style.width =
-      table.left.style.width = leftTableWidth + 'px'
-
-    table.head.style.left = leftTableWidth + 'px'
-    table.main.style.left = leftTableWidth + 'px'
-
-    table.head.style.width =
-      table.main.style.width = (columns.filter((v, i) => i >= freeze)
-        .reduce((a, b) => a + b)) + 'px'
-
-    table.left.style.top =
-      table.main.style.top = bodyTop + 'px'
-
-    events.axis.mouseenter(axis.x, axis.y)
-    calculateXAxis(rightTableWidth, axis.x, this.shape.body.width, columns.slice(freeze))
-    axis.x.style.width = this.shape.body.width + 'px'
-    axis.y.style.height = this.shape.body.height + 'px'
-
-    table.knob.querySelectorAll('col[data-index]').forEach(
-      (col: any) => col.style.width = columns[parseInt(col.dataset.index)] + 'px')
-    table.head.querySelectorAll('col[data-index]').forEach(
-      (col: any) => col.style.width = columns[parseInt(col.dataset.index)] + 'px')
-
-    const colgroup = [table.left.querySelector('colgroup'), table.main.querySelector('colgroup')]
-    colgroup[0] && table.left.removeChild(colgroup[0])
-    colgroup[1] && table.main.removeChild(colgroup[1])
-
-    table.left.appendChild(table.knob.querySelector('colgroup').cloneNode(true))
-    table.main.appendChild(table.head.querySelector('colgroup').cloneNode(true))
+    resizeScrollAxis(this)
+    resizeTableAndCell(this)
   }
 
   private loading(url: string): void {

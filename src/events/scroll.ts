@@ -1,56 +1,79 @@
 import Gumul from '../Gumul'
 
-export default {
-  x(e: Event, head: HTMLTableElement, main: HTMLTableElement, columns: number[], freeze: number): void {
-    const scroll = Math.ceil((e.currentTarget as Element).scrollLeft / Gumul.SCROLL_X_SIZE)
-    const scrollSize = scroll === 0 ? 0
-      : columns.slice(freeze, freeze + scroll).reduce((a, b) => a + b) * -1
+export default (gumul: Gumul) => {
+  const {
+    element: { table, axis },
+    shape: { columns, freeze, rows }
+  } = gumul
 
-    head.style.marginLeft = scrollSize + 'px'
-    main.style.marginLeft = scrollSize + 'px'
-  },
-  y(
-    e: Event,
-    left: HTMLTableElement,
-    main: HTMLTableElement,
-    data: any[],
-    rows: number,
-    _scroll: number,
-    dataRender: (data: any, front?: boolean) => void
-  ): number {
-    const scroll: number = Math.ceil((e.currentTarget as Element).scrollTop / Gumul.SCROLL_Y_SIZE)
-    const gap: number = scroll - _scroll
+  axis.x.addEventListener('mouseenter', () => {
+    axis.x.style.zIndex = '6'
+    axis.y.style.zIndex = '5'
+  })
+
+  axis.y.addEventListener('mouseenter', () => {
+    axis.y.style.zIndex = '6'
+    axis.x.style.zIndex = '5'
+  })
+
+
+  axis.x.addEventListener('scroll', (e: Event) => {
+    const scrollX = Math.ceil(
+      (e.currentTarget as Element).scrollLeft / Gumul.SCROLL_X_SIZE)
+    const scrollSize = scrollX === 0
+      ? 0
+      : columns
+      .slice(freeze, freeze + scrollX)
+      .reduce((a, b) => a + b) * -1
+
+    table.head.style.marginLeft =
+      table.main.style.marginLeft = scrollSize + 'px'
+
+  })
+
+  let scrolled = 0
+  axis.y.addEventListener('scroll', (e: Event) => {
+    const scrollY: number = Math.ceil(
+      (e.currentTarget as Element).scrollTop / Gumul.SCROLL_Y_SIZE)
+    const gap: number = scrollY - scrolled
+
+    scrolled = scrollY
 
     if (gap === 1) {
-      const tr = [left.querySelector('tr'), main.querySelector('tr')]
+      const tr = [
+        table.left.querySelector('tr'),
+        table.main.querySelector('tr')
+      ]
+
       tr[0] && tr[0].parentNode.removeChild(tr[0])
       tr[1] && tr[1].parentNode.removeChild(tr[1])
 
-      const index: number = scroll + rows - 1
-      if (index < data.length)
-        dataRender(data[index])
+      const index: number = scrollY + rows - 1
+      if (index < gumul.data.length)
+        gumul.renderRow(index)
     } else if (gap === -1) {
-      const index: number = scroll
-      if (index + rows < data.length) {
-        const tr = [left.querySelector('tr:last-child'),
-          main.querySelector('tr:last-child')]
+      const index: number = scrollY
+      if (index + rows < gumul.data.length) {
+        const tr = [
+          table.left.querySelector('tr:last-child'),
+          table.main.querySelector('tr:last-child')
+        ]
         tr[0] && tr[0].parentNode.removeChild(tr[0])
         tr[1] && tr[1].parentNode.removeChild(tr[1])
       }
 
-      dataRender(data[index], true)
+      gumul.renderRow(index, true)
     } else {
-      if (left.querySelector('tbody')) {
-        left.removeChild(left.querySelector('tbody'))
-        left.appendChild(document.createElement('tbody'))
+      if (table.left.querySelector('tbody')) {
+        table.left.removeChild(table.left.querySelector('tbody'))
+        table.left.appendChild(document.createElement('tbody'))
       }
 
-      main.removeChild(main.querySelector('tbody'))
-      main.appendChild(document.createElement('tbody'))
+      table.main.removeChild(table.main.querySelector('tbody'))
+      table.main.appendChild(document.createElement('tbody'))
 
-      data.slice(scroll, scroll + rows).forEach(v => dataRender(v))
+      for (let i: number = 0; i < rows; i++)
+        gumul.renderRow(i + scrollY)
     }
-
-    return scroll
-  }
+  })
 }
